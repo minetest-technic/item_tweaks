@@ -72,12 +72,12 @@ minetest.register_entity(":__builtin:item", {
 			if data and type(data) == "table" then
 				self.itemstring = data.itemstring
 				self.always_collect = data.always_collect
-				print(dump(dtime_s))
 				if data.age then 
 					self.age = data.age + dtime_s
 				else
 					self.age = dtime_s
 				end
+				print(dump(self.age))
 			end
 		else
 			self.itemstring = staticdata
