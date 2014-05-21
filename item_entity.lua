@@ -2,30 +2,28 @@
 -- Setting it to -1 disables the feature
 
 local time_to_live = tonumber(minetest.setting_get("item_entity_ttl"))
-
 if not time_to_live then
-	time_to_live = 5
+	time_to_live = 900
 end
-
 
 minetest.register_entity(":__builtin:item", {
 	initial_properties = {
 		hp_max = 1,
 		physical = true,
 		collide_with_objects = false,
-		collisionbox = {-0.24,-0.24,-0.24, 0.24,0.24,0.24},
-		visual = "sprite",
-		visual_size = {x=0.3, y=0.3},
+		collisionbox = {-0.24, -0.24, -0.24, 0.24, 0.24, 0.24},
+		visual = "wielditem",
+		visual_size = {x = 0.3, y = 0.3},
 		textures = {""},
-		spritediv = {x=1, y=1},
-		initial_sprite_basepos = {x=0, y=0},
+		spritediv = {x = 1, y = 1},
+		initial_sprite_basepos = {x = 0, y = 0},
 		is_visible = false,
 	},
 
 	itemstring = '',
 	physical_state = true,
 	age = 0,
-	
+
 	set_item = function(self, itemstring)
 		self.itemstring = itemstring
 		local stack = ItemStack(itemstring)
@@ -35,7 +33,7 @@ minetest.register_entity(":__builtin:item", {
 			count = max_count
 			self.itemstring = stack:get_name().." "..max_count
 		end
-		local s = 0.15 + 0.15*(count/max_count)
+		local s = 0.15 + 0.15 * (count/max_count)
 		local c = 0.8 * s
 		local itemtable = stack:to_table()
 		local itemname = nil
@@ -53,11 +51,11 @@ minetest.register_entity(":__builtin:item", {
 			visual = "wielditem",
 			textures = {itemname},
 			visual_size = {x=s, y=s},
-			collisionbox = {-c,-c,-c, c,c,c},
+			collisionbox = {-c, -c, -c, c, c, c},
 			automatic_rotate = math.pi * 0.2,
 		}
 		self.object:set_properties(prop)
-		self.age = minetest.get_gametime()
+		self.age = 0
 	end,
 
 	get_staticdata = function(self)
@@ -68,16 +66,17 @@ minetest.register_entity(":__builtin:item", {
 		})
 	end,
 
-	on_activate = function(self, staticdata)
+	on_activate = function(self, staticdata, dtime_s)
 		if string.sub(staticdata, 1, string.len("return")) == "return" then
 			local data = minetest.deserialize(staticdata)
 			if data and type(data) == "table" then
 				self.itemstring = data.itemstring
 				self.always_collect = data.always_collect
+				print(dump(dtime_s))
 				if data.age then 
-					self.age = data.age
+					self.age = data.age + dtime_s
 				else
-					self.age = minetest.get_gametime()
+					self.age = dtime_s
 				end
 			end
 		else
@@ -90,7 +89,9 @@ minetest.register_entity(":__builtin:item", {
 	end,
 
 	on_step = function(self, dtime)
-		if time_to_live > 0 and minetest.get_gametime() - self.age > time_to_live then
+		self.age = self.age + dtime
+		--print(dump(self.age))
+		if time_to_live > 0 and self.age > time_to_live then
 			self.itemstring = ''
 			self.object:remove()
 			return
@@ -103,7 +104,7 @@ minetest.register_entity(":__builtin:item", {
 		if not minetest.registered_nodes[nn] or minetest.registered_nodes[nn].walkable and v.y == 0 then
 			if self.physical_state then
 				local own_stack = ItemStack(self.object:get_luaentity().itemstring)
-				for _,object in ipairs(minetest.get_objects_inside_radius(p, 1)) do
+				for _,object in ipairs(minetest.get_objects_inside_radius(p, 0.8)) do
 					local obj = object:get_luaentity()
 					if obj and obj.name == "__builtin:item" and obj.physical_state == false then
 						local stack = ItemStack(obj.itemstring)
@@ -118,14 +119,14 @@ minetest.register_entity(":__builtin:item", {
 								self.itemstring = ''
 							end	
 							local pos=object:getpos() 
-							pos.y = pos.y + (count - stack:get_count())/max_count * 0.15
+							pos.y = pos.y + (count - stack:get_count()) / max_count * 0.15
 							object:moveto(pos, false)
 							local s, c
 							local max_count = stack:get_stack_max()
 							local name = stack:get_name()
 							if not overflow then
 								obj.itemstring = name.." "..count
-								s = 0.15 + 0.15*(count/max_count)
+								s = 0.15 + 0.15 * (count/max_count)
 								c = 0.8 * s
 								object:set_properties({
 									visual_size = {x=s, y=s},
@@ -141,7 +142,7 @@ minetest.register_entity(":__builtin:item", {
 									collisionbox = {-c,-c,-c, c,c,c}
 								})
 								obj.itemstring = name.." "..max_count
-								s = 0.15 + 0.15*(count/max_count)
+								s = 0.15 + 0.15 * (count/max_count)
 								c = 0.8 * s
 								self.object:set_properties({
 									visual_size = {x=s, y=s},
@@ -179,5 +180,3 @@ minetest.register_entity(":__builtin:item", {
 		self.object:remove()
 	end,
 })
-
-

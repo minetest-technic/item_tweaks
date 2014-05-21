@@ -195,11 +195,11 @@ if minetest.setting_get("enable_item_pickup") == "true" then
 			if player:get_hp() > 0 or not minetest.setting_getbool("enable_damage") then
 				local playerPosition = player:getpos()
 				if playerPosition ~= nil then
-					playerPosition.y = playerPosition.y+0.5
+					playerPosition.y = playerPosition.y + 0.5
 					local inv = player:get_inventory()
 
 					for _, object in ipairs(minetest.env:get_objects_inside_radius(playerPosition, 3)) do
-						if isGood(object) and ((minetest.get_gametime() - object:get_luaentity().age) > 3) and
+						if isGood(object) and object:get_luaentity().age > 3 and
 							inv and
 							inv:room_for_item("main", ItemStack(object:get_luaentity().itemstring))
 							then
@@ -313,8 +313,8 @@ function minetest.item_drop(itemstack, dropper, pos)
 			obj:setvelocity(v)
 		end
 		return r
-		else
-			minetest.add_item(pos, itemstack)
-			return ItemStack("")
-		end
+	else
+		minetest.add_item(pos, itemstack)
+		return ItemStack("")
+	end
 end
