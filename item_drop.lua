@@ -6,16 +6,6 @@ if drops == nil then
 	drops = {}
 end
 
-local function iprint(...)
-	-- wtf
-	local thingies = {...}
-
-	for i, v in ipairs(thingies) do
-		thingies[i] = tostring(v)
-	end
-	print('\27[1m[item_drop] '..table.concat(thingies, ' '), '\27[m')
-end
-
 local movers = {}
 
 local removedAlreadyDammit = {}
