@@ -228,7 +228,7 @@ if minetest.setting_get("enable_item_drops") == "true" then
 	function new_handle_node_drops(pos, drops, digger)
 		local inv
 		-- the digger might be a node, like a constructor
-		if minetest.setting_getbool("creative_mode") and digger and digger:is_player() then
+		if minetest.setting_getbool("creative_mode") and digger and digger:is_player() and not digger.is_fake_player then
 			inv = digger:get_inventory()
 		end
 		for _, item in ipairs(drops) do
