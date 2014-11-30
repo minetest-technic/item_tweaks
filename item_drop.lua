@@ -188,7 +188,7 @@ if minetest.setting_get("enable_item_pickup") == "true" then
 					playerPosition.y = playerPosition.y + 0.5
 					local inv = player:get_inventory()
 
-					for _, object in ipairs(minetest.env:get_objects_inside_radius(playerPosition, 3)) do
+					for _, object in ipairs(minetest.get_objects_inside_radius(playerPosition, 3)) do
 						if isGood(object) and (object:get_luaentity().dropped_by ~= player:get_player_name() or object:get_luaentity().age > 3) and
 							inv and
 							inv:room_for_item("main", ItemStack(object:get_luaentity().itemstring))
@@ -246,7 +246,7 @@ if minetest.setting_get("enable_item_drops") == "true" then
 			-- Only drop the item if not in creative, or if the item is not in creative inventory
 			if not inv or not inv:contains_item("main", ItemStack(name)) then
 				for i=1, count do
-					local obj = minetest.env:add_item(pos, item)
+					local obj = minetest.add_item(pos, item)
 					if obj ~= nil then
 						local x = math.random(1, 5)
 						if math.random(1, 2) == 1 then
