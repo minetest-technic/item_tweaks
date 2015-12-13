@@ -280,7 +280,7 @@ if minetest.setting_get("enable_item_drops") == "true" then
 end
 
 function minetest.item_drop(itemstack, dropper, pos)
-	if dropper.get_player_name then
+	if dropper and dropper.get_player_name then
 		local v = dropper:get_look_dir()
 		local p = {x=pos.x+v.x, y=pos.y+1.5+v.y, z=pos.z+v.z}
 		local r
